@@ -1,724 +1,826 @@
-METRON — Retail Pricing Intelligence
-
-METRON is an applied machine-learning decision-intelligence platform for retail pricing. It combines demand forecasting, product-level price-response estimation, promotion analysis, scenario simulation, optimization, commercial guardrails, uncertainty, explainability, human review signals, and model monitoring behind a FastAPI service and React/Vite decision workspace.
-
-Portfolio project. The included dataset is synthetic and is intended for development, testing, and demonstration. No production business performance is claimed.
-
-Overview
-
-METRON demonstrates an end-to-end ML workflow for turning retail history into constraint-aware pricing recommendations.
-
-The system separates prediction from the final business decision:
-
-Demand forecasting
-
-Price-response and elasticity modeling
-
-Promotion analysis
-
-Scenario simulation
-
-Price optimization
-
-Commercial guardrails
-
-Confidence and uncertainty
-
-Decision explanations
-
-Human-review signals
-
-Model monitoring
-
-REST API
-
-Interactive decision dashboard
-
-The emphasis is on building an engineered ML decision system rather than only training a forecasting model.
-
-System Capabilities
-
-Capability
-
-Implementation
-
-Demand Forecasting
-
-Gradient-boosted regression
-
-Features
-
-Price, promotion, lag, rolling, calendar, product, store, category
-
-Evaluation
-
-MAE, RMSE, WAPE
-
-Validation
-
-Time-based holdout
-
-Price Response
-
-Product/store-level elasticity
-
-Promotion
-
-Promotion uplift diagnostics
-
-Simulation
-
-Candidate price scenarios
-
-Optimization
-
-Revenue / gross-profit objectives
-
-Guardrails
-
-Margin floor, movement limits, rounding
-
-Uncertainty
-
-Development demand intervals
-
-Confidence
-
-Elasticity evidence + model fit
-
-Explainability
-
-Price, demand, promotion, guardrail signals
-
-Human Review
-
-Low-confidence / boundary-case signals
-
-Monitoring
-
-Demand drift + model health
-
-Backend
-
-FastAPI
-
-Frontend
-
-React + Vite
-
-Testing
-
-Pytest
-
-Deployment
-
-Docker + Docker Compose
-
-CI
-
-GitHub Actions
-
-Configuration
-
-JSON + environment configuration
-
-Architecture
-
-                         ┌──────────────────────┐
-                         │    Retail History    │
-                         │   Synthetic Demo     │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Validation + Feature │
-                         │     Engineering      │
-                         └──────────┬───────────┘
-                                    │
-                         ┌──────────┴──────────┐
-                         │                     │
-                         ▼                     ▼
-                ┌─────────────────┐   ┌─────────────────┐
-                │ Demand Forecast │   │ Price Response  │
-                │     Model       │   │   / Elasticity  │
-                └────────┬────────┘   └────────┬────────┘
-                         │                     │
-                         └──────────┬──────────┘
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Scenario Simulator   │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │ Constraint Engine    │
-                         │ + Commercial Guards  │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Price Optimizer    │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Recommendation     │
-                         └──────────┬───────────┘
-                                    │
-                         ┌──────────┴──────────┐
-                         ▼                     ▼
-                  ┌─────────────┐       ┌─────────────┐
-                  │ Explanation │       │ Confidence  │
-                  └──────┬──────┘       └──────┬──────┘
-                         │                     │
-                         └──────────┬──────────┘
-                                    ▼
-                         ┌──────────────────────┐
-                         │    Human Review      │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │      Monitoring      │
-                         └──────────────────────┘
-
-Decision Flow
-
-Retail Data
-    ↓
-Demand Forecast
-    ↓
-Price Response
-    ↓
-Scenario Simulation
-    ↓
-Commercial Guardrails
-    ↓
-Price Optimization
-    ↓
-Recommendation
-    ↓
-Confidence + Explanation
-    ↓
-Human Review
-    ↓
-Monitoring
-
-Project Structure
-
-METRON-Retail-Pricing-Intelligence/
-│
-├── api/
-│   └── main.py
-│
-├── configs/
-│   └── default.json
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── App.css
-│   │   ├── index.css
-│   │   └── main.jsx
-│   ├── package.json
-│   └── vite.config.js
-│
-├── models/
-│
-├── pipelines/
-│   ├── generate_demo_data.py
-│   ├── train.py
-│   ├── evaluate.py
-│   └── predict.py
-│
-├── src/
-│   └── metron/
-│       ├── catalog.py
-│       ├── elasticity.py
-│       ├── evaluation.py
-│       ├── features.py
-│       ├── forecasting.py
-│       ├── io.py
-│       ├── monitoring.py
-│       └── pricing.py
-│
-├── tests/
-│   ├── test_api.py
-│   ├── test_features.py
-│   └── test_pricing.py
-│
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
-├── Dockerfile
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-├── pyproject.toml
-└── README.md
-
-Dataset
-
-METRON uses a synthetic retail dataset generated for development and testing.
-
-The dataset contains:
-
-date
-product_id
-product_name
-store_id
-store_name
-category
-price
-cost
-promo
-inventory
-units_sold
-revenue
-gross_profit
-
-The data generator is separated from the ML and pricing layers so a public or production retail dataset can replace it without changing the core decision API contract.
-
-Installation
-
-Python 3.10+ is recommended.
-
-Windows PowerShell
-
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
-
-Generate Demo Data
-
-python pipelines\generate_demo_data.py
-
-Training
-
-python pipelines\train.py
-
-The training pipeline builds historical demand features, trains the forecasting model, and saves the trained artifact.
-
-models/demand_model.joblib
-
-Evaluation
-
-python pipelines\evaluate.py
-
-The demand model uses a time-based holdout and reports:
-
-Metric
-
-Purpose
-
-MAE
-
-Average absolute demand error
-
-RMSE
-
-Penalizes larger errors
-
-WAPE
-
-Scale-normalized demand error
-
-Evaluation results are based on synthetic data and should not be interpreted as production retail performance.
-
-Price Elasticity
+<div align="center">
+
+# METRON — Retail Pricing Intelligence
+
+**Applied ML • Demand Forecasting • Price Optimization • Decision Intelligence**
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange.svg)](https://scikit-learn.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-API-009688.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-Frontend-61DAFB.svg)](https://react.dev/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED.svg)](https://www.docker.com/)
+[![Pytest](https://img.shields.io/badge/Pytest-Tested-0A9EDC.svg)](https://pytest.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+</div>
+
+> An end-to-end retail pricing intelligence platform for demand forecasting, price-response modeling, scenario simulation, constrained optimization, and explainable price recommendations.
+
+**Portfolio / research prototype:** METRON uses synthetic retail data for development and demonstration. It is not presented as production performance or as a claim of deployment for any specific retailer.
+
+---
+
+## Overview
+
+METRON is an applied machine learning platform designed around a practical retail decision:
+
+> Given historical demand, pricing, promotion, product, store, inventory, and calendar signals, what price should be considered next, and how confident are we?
+
+The system combines:
+
+- Demand forecasting
+- Price-response / elasticity modeling
+- Promotion uplift diagnostics
+- Scenario simulation
+- Revenue and profit optimization
+- Business constraint enforcement
+- Confidence estimation
+- Human-review routing
+- Explainable pricing recommendations
+- Model and data monitoring
+- REST API serving
+- React-based decision dashboard
+
+The project is designed as an end-to-end applied ML system rather than a standalone notebook model.
+
+---
+
+## System Capabilities
+
+| Capability | Description |
+|---|---|
+| Demand Forecasting | Predict expected product demand from historical and commercial signals |
+| Price Response | Estimate SKU/store-level price elasticity using historical observations |
+| Promotion Analysis | Diagnose promotional demand uplift |
+| Scenario Simulation | Evaluate multiple candidate prices before making a recommendation |
+| Optimization | Select prices based on revenue or profit objectives |
+| Guardrails | Enforce margin floors, price movement limits, rounding, and feasibility constraints |
+| Confidence | Estimate recommendation confidence from model and elasticity diagnostics |
+| Human Review | Flag low-confidence or boundary-sensitive recommendations |
+| Explainability | Provide business-readable reasoning behind recommendations |
+| Monitoring | Track demand drift and model health indicators |
+| API | Serve recommendations, catalog data, simulations, and dashboard summaries |
+| Dashboard | Provide a premium black decision-intelligence interface |
+
+---
+
+## Architecture
+
+    RETAIL DATA
+         |
+         v
+    +-------------------+
+    | Data Validation   |
+    | & Feature Engine  |
+    +---------+---------+
+              |
+       +------+------+
+       |             |
+       v             v
+    +---------+   +--------------------+
+    | Demand  |   | Price Response     |
+    | Model   |   | / Elasticity Model |
+    +----+----+   +---------+----------+
+         |                  |
+         +--------+---------+
+                  |
+                  v
+        +-------------------+
+        | Scenario          |
+        | Simulator         |
+        +---------+---------+
+                  |
+                  v
+        +-------------------+
+        | Constraint        |
+        | Engine            |
+        +---------+---------+
+                  |
+                  v
+        +-------------------+
+        | Price Optimizer   |
+        +---------+---------+
+                  |
+             +----+----+
+             |         |
+             v         v
+        +---------+ +---------+
+        | FastAPI | | React   |
+        | Backend | | UI      |
+        +---------+ +---------+
+
+---
+
+## Decision Flow
+
+    Historical Demand
+           |
+           v
+    Forecast Demand
+           |
+           v
+    Estimate Price Response
+           |
+           v
+    Generate Candidate Prices
+           |
+           v
+    Simulate Demand / Revenue / Profit
+           |
+           v
+    Apply Business Constraints
+           |
+           v
+    Select Best Feasible Scenario
+           |
+           v
+    Calculate Confidence
+           |
+           v
+    Human Review Check
+           |
+           v
+    Recommended Price
+
+---
+
+## Project Structure
+
+    METRON-Retail-Pricing-Intelligence/
+    │
+    ├── api/
+    │   └── main.py
+    │
+    ├── frontend/
+    │   ├── src/
+    │   │   ├── App.jsx
+    │   │   ├── App.css
+    │   │   ├── index.css
+    │   │   └── main.jsx
+    │   ├── package.json
+    │   ├── package-lock.json
+    │   ├── vite.config.js
+    │   ├── index.html
+    │   └── .env.example
+    │
+    ├── src/
+    │   └── metron/
+    │       ├── __init__.py
+    │       ├── features.py
+    │       ├── forecasting.py
+    │       ├── pricing.py
+    │       ├── elasticity.py
+    │       ├── catalog.py
+    │       ├── evaluation.py
+    │       ├── monitoring.py
+    │       └── io.py
+    │
+    ├── pipelines/
+    │   ├── generate_demo_data.py
+    │   ├── train.py
+    │   ├── evaluate.py
+    │   └── predict.py
+    │
+    ├── configs/
+    │   └── default.json
+    │
+    ├── data/
+    │   ├── raw/
+    │   │   └── .gitkeep
+    │   └── processed/
+    │       └── .gitkeep
+    │
+    ├── models/
+    │   └── .gitkeep
+    │
+    ├── artifacts/
+    │   └── .gitkeep
+    │
+    ├── notebooks/
+    │   └── exploration/
+    │       └── .gitkeep
+    │
+    ├── tests/
+    │   ├── test_features.py
+    │   ├── test_pricing.py
+    │   └── test_api.py
+    │
+    ├── .github/
+    │   └── workflows/
+    │       └── ci.yml
+    │
+    ├── Dockerfile
+    ├── docker-compose.yml
+    ├── .env.example
+    ├── .gitignore
+    ├── pyproject.toml
+    ├── README.md
+    └── LICENSE
+
+---
+
+## Dataset
+
+METRON currently uses synthetically generated retail data for development and testing.
+
+The generated dataset contains fields including:
+
+- `date`
+- `product_id`
+- `product_name`
+- `store_id`
+- `store_name`
+- `category`
+- `price`
+- `cost`
+- `promo`
+- `inventory`
+- `units_sold`
+- `revenue`
+- `gross_profit`
+
+The demo generator creates a multi-product, multi-store time series suitable for exercising the complete ML pipeline.
+
+No proprietary retailer dataset is included.
+
+---
+
+## Installation
+
+### Clone the Repository
+
+    git clone https://github.com/JOHNSANJITH/METRON-Retail-Pricing-Intelligence.git
+    cd METRON-Retail-Pricing-Intelligence
+
+### Create a Virtual Environment
+
+Windows:
+
+    python -m venv .venv
+    .venv\Scripts\activate
+
+Linux / macOS:
+
+    python -m venv .venv
+    source .venv/bin/activate
+
+### Install Backend Dependencies
+
+    pip install -e .
+
+### Install Frontend Dependencies
+
+    cd frontend
+    npm install
+    cd ..
+
+---
+
+## Data Generation
+
+Generate the synthetic development dataset:
+
+    python pipelines/generate_demo_data.py
+
+The generated data is written to:
+
+    data/raw/demo_retail.csv
+
+---
+
+## Training
+
+Train the demand forecasting model:
+
+    python pipelines/train.py
+
+The trained model is saved under:
+
+    models/
+
+The forecasting pipeline uses a gradient-boosted regression model with commercial, temporal, product, and store features.
+
+---
+
+## Evaluation
+
+Evaluate the trained model:
+
+    python pipelines/evaluate.py
+
+Evaluation includes:
+
+- MAE
+- RMSE
+- WAPE
+
+Example development output:
+
+    {
+        "mae": ...,
+        "rmse": ...,
+        "wape": ...
+    }
+
+These values are generated from synthetic development data and should not be interpreted as production performance.
+
+---
+
+## Price Response / Elasticity
 
 METRON estimates product/store-level price response using historical observations.
 
-The elasticity layer incorporates:
+The elasticity model incorporates:
 
-Price
+- Historical price
+- Historical demand
+- Promotion effects
+- Seasonal controls
+- Weekend effects
 
-Promotion controls
+Elasticity is categorized into:
 
-Seasonal effects
+    Elastic
+    Unit Elastic
+    Inelastic
 
-Weekend effects
+The system also exposes:
 
-Observation count
+- Elasticity estimate
+- Confidence
+- Observation count
+- R²
+- Response level
 
-Model fit
+---
 
-Confidence classification
+## Scenario Simulation
 
-Products can be categorized as:
+METRON does not immediately return a price based on a single model output.
 
-Elastic
-Unit Elastic
-Inelastic
+Instead, it evaluates a range of candidate prices.
 
-Elasticity is treated as decision-support evidence rather than an unconditional causal estimate.
+For each candidate price, the system estimates:
 
-Scenario Simulation
+    Expected Demand
+    Expected Revenue
+    Expected Profit
+    Margin
+    Price Change %
+    Feasibility
 
-METRON evaluates multiple candidate prices rather than returning only a model prediction.
+This creates a scenario frontier that allows the recommendation to be understood as a decision rather than simply a prediction.
 
-Current Price
-      ↓
-Candidate Prices
-      ↓
-Demand Simulation
-      ↓
-Revenue / Profit Estimation
-      ↓
-Guardrail Filtering
-      ↓
-Best Feasible Scenario
+---
 
-Each scenario contains expected demand, revenue, gross profit, margin, price movement, and feasibility.
+## Optimization
 
-Optimization & Guardrails
+The pricing engine supports multiple commercial objectives.
 
-Current pricing constraints include:
+### Revenue Objective
 
-Minimum margin floor
+Select the feasible price that maximizes expected revenue.
 
-Maximum price movement
+### Profit Objective
 
-Price rounding
+Select the feasible price that maximizes expected gross profit.
 
-Revenue / profit objective
+### Guardrails
 
-Product/store context
+Candidate prices can be constrained using:
 
-The optimizer selects the best feasible candidate after applying commercial constraints.
+- Minimum margin
+- Maximum price movement
+- Minimum price
+- Maximum price
+- Price rounding
+- Promotion conditions
+- Inventory considerations
+- Feasibility checks
 
-Confidence & Explainability
+Only feasible scenarios are eligible for recommendation.
 
-METRON surfaces decision evidence instead of presenting every recommendation as equally reliable.
+---
 
-Confidence considers elasticity evidence, model fit, and available observations.
+## Confidence & Explainability
 
-Recommendations can trigger human review when:
+METRON separates the recommendation from the confidence associated with it.
 
-Confidence is low
+Confidence is influenced by model and price-response diagnostics.
 
-Evidence is limited
+Recommendations can be routed for human review when:
 
-The recommendation approaches a guardrail boundary
+- Confidence is low
+- The recommendation is close to a constraint boundary
+- The estimated price response is uncertain
 
-Decision explanations include:
+The system also generates business-readable explanations covering:
 
-Price-response behavior
+- Price response
+- Recent demand
+- Promotion effects
+- Guardrails
+- Recommendation rationale
 
-Recent demand trend
+---
 
-Promotion state
+## REST API
 
-Guardrails
-
-Confidence
-
-Human-review status
-
-REST API
+The backend is implemented with FastAPI.
 
 Start the API:
 
-uvicorn api.main:app --reload
+    uvicorn api.main:app --reload
 
-API:
+The API is available at:
 
-http://127.0.0.1:8000
+    http://127.0.0.1:8000
 
-Interactive documentation:
+### Health
 
-http://127.0.0.1:8000/docs
+    GET /health
 
-API Surface
+Returns model availability, version information, evaluation metadata, and data mode.
 
-Method
+### Products
 
-Endpoint
+    GET /products
 
-Purpose
+Returns the available product and store catalog.
 
-GET
+### Product Details
 
-/health
+    GET /products/{product_id}
 
-Runtime and model health
+Returns product-level information and recent data.
 
-GET
+### Pricing Recommendation
 
-/products
+    POST /pricing/recommend
 
-Product catalog and model signals
+Returns:
 
-GET
+- Recommended price
+- Expected demand
+- Expected revenue
+- Expected profit
+- Confidence
+- Review status
+- Explanation
+- Candidate scenarios
 
-/products/{product_id}
+### Pricing Simulation
 
-Product/store details
+    POST /pricing/simulate
 
-POST
+Evaluates candidate prices without necessarily selecting a final recommendation.
 
-/pricing/recommend
+### Dashboard Summary
 
-Generate constrained recommendation
+    GET /dashboard/summary
 
-POST
+Provides aggregated information used by the decision dashboard.
 
-/pricing/simulate
+---
 
-Simulate candidate prices
+## Frontend
 
-GET
+The METRON dashboard is built with:
 
-/dashboard/summary
+- React
+- Vite
+- CSS
+- REST API integration
 
-Dashboard KPIs and monitoring
+The interface follows a premium black decision-intelligence design.
 
-Frontend
+Main sections include:
 
-The decision workspace is built with React and Vite.
+    Overview
+    Pricing Lab
+    Demand
+    Elasticity
+    Products
+    Model Health
 
-cd frontend
-npm install
-npm run dev
+The Pricing Lab provides:
 
-Dashboard:
+- Product selection
+- Store selection
+- Current price
+- Unit cost
+- Promotion status
+- Objective selection
+- Recommended price
+- Scenario frontier
+- Demand intelligence
+- Elasticity information
+- Recommendation explanation
+- Human-review status
 
-http://127.0.0.1:5173
+Run the frontend:
 
-The workspace includes:
+    cd frontend
+    npm run dev
 
-Overview
+Then open:
 
-Pricing Lab
+    http://localhost:5173
 
-Demand Intelligence
+---
 
-Elasticity
+## Tech Stack
 
-Product Portfolio
+    +------------------------------------------------------+
+    |                    METRON STACK                      |
+    +------------------------------------------------------+
+    | Language       | Python, JavaScript                  |
+    | ML             | scikit-learn                        |
+    | Forecasting    | HistGradientBoostingRegressor      |
+    | API            | FastAPI                             |
+    | Frontend       | React + Vite                        |
+    | Data           | Pandas / NumPy                      |
+    | Validation     | Pytest                              |
+    | Container      | Docker                              |
+    | CI             | GitHub Actions                      |
+    | Configuration  | JSON / Environment Variables        |
+    +------------------------------------------------------+
 
-Model Health
+---
 
-Tech Stack
+## Testing
 
-┌──────────────────────────────────────────────────────┐
-│                    METRON STACK                      │
-├──────────────────────────────────────────────────────┤
-│ ML / Data       │ Python · Pandas · NumPy            │
-│ Modeling        │ scikit-learn · Gradient Boosting   │
-│ Pricing         │ Elasticity · Simulation · Optimizer│
-│ Backend         │ FastAPI · Pydantic · Uvicorn       │
-│ Frontend        │ React · Vite · JavaScript · CSS    │
-│ Testing         │ Pytest · GitHub Actions            │
-│ Deployment      │ Docker · Docker Compose            │
-│ Engineering     │ Git · Config-driven Pipelines      │
-└──────────────────────────────────────────────────────┘
+Run the complete test suite:
 
-Testing
+    pytest -q
 
-Run:
+The test suite covers:
 
-pytest -q
+- Feature generation
+- Pricing logic
+- API health
+- Product endpoints
+- Pricing recommendation behavior
 
-Tests cover:
+Current development verification:
 
-Feature generation
+    5 passed
 
-Pricing logic
+Warnings from development dependencies may appear depending on the installed FastAPI, Starlette, and AnyIO versions.
 
-API health
+---
 
-Product endpoints
+## Docker
 
-Pricing recommendations
+Build the application:
 
-Docker
+    docker build -t metron .
 
-Build:
+Run with Docker Compose:
 
-docker compose build
+    docker compose up --build
 
-Run:
+The containerized setup provides a reproducible environment for the backend and supporting services.
 
-docker compose up
+---
 
-Engineering Decisions
+## Engineering Decisions
 
-Prediction Is Not the Decision
+### Separate Forecasting and Price Response
 
-The demand model provides a predictive signal. METRON combines it with price response, simulation, constraints, and optimization before producing a recommendation.
+Demand forecasting and price response answer different questions.
 
-Constraints Before Recommendation
+The demand model estimates expected demand from commercial and temporal signals, while the elasticity component estimates how demand changes with price.
 
-Commercial rules are applied before selecting the final price.
+Keeping these components separate makes the system easier to inspect and extend.
 
-Human Review
+### Scenario-Based Optimization
 
-Low-confidence and boundary-case recommendations are surfaced rather than silently treated as reliable automated decisions.
+The system evaluates candidate prices rather than treating the model output as the final decision.
 
-Synthetic Data Transparency
+This allows commercial constraints to be incorporated explicitly.
 
-The development dataset is explicitly synthetic. No production performance is implied.
+### Constraint-First Decisioning
 
-API Separation
+A mathematically attractive price is not necessarily commercially valid.
 
-ML, pricing, and optimization logic are separated from the HTTP layer so the core decision components remain independently testable.
+METRON therefore applies business constraints before selecting the final recommendation.
 
-Production Considerations
+### Human-in-the-Loop
 
-A production deployment would require:
+Low-confidence recommendations should not automatically become business actions.
 
-Real retail data contracts and validation
+The system can flag recommendations that require human review.
 
-Stronger causal identification of price effects
+### Synthetic Development Data
 
-Multi-window time-series backtesting
+Synthetic data keeps the repository reproducible and avoids exposing proprietary retail information.
 
-Calibrated uncertainty
+---
 
-Experimentation / A-B testing
+## Limitations
 
-Inventory and competitor-price signals
+METRON is currently a portfolio-scale applied ML prototype.
 
-Production data infrastructure
+Important limitations include:
 
-Model registry and experiment tracking
+- Synthetic rather than proprietary retail data
+- Limited historical data realism compared with enterprise datasets
+- Simplified price-response assumptions
+- No production-grade experimentation platform
+- No automated model registry
+- No production feature store
+- No full causal inference framework
+- No real-time retailer integration
+- Simplified monitoring and drift detection
+- No guaranteed business or financial outcome
 
-Automated retraining
+The current system demonstrates engineering architecture and decision logic rather than production deployment readiness.
 
-Observability and drift monitoring
+---
 
-Approval and audit workflows
+## Production Considerations
 
-Model governance
+A production deployment could extend METRON with:
 
-These are future production requirements and are not claimed as implemented capabilities.
+- PostgreSQL or warehouse-backed data infrastructure
+- MLflow or another model registry
+- Scheduled retraining pipelines
+- Feature-store integration
+- Automated model validation
+- More robust demand forecasting models
+- Causal promotion analysis
+- Hierarchical forecasting
+- Experimentation / A-B testing
+- Advanced demand elasticity estimation
+- Real-time inventory integration
+- Production observability
+- Data-quality monitoring
+- Model drift monitoring
+- Authentication and authorization
+- Role-based approval workflows
+- Audit logging
 
-Limitations
+---
 
-Synthetic data does not represent real retail behavior.
+## Development Workflow
 
-Historical price response does not automatically establish causality.
+Create a feature branch:
 
-Elasticity estimates depend on available observations.
+    git checkout -b feature/<short-description>
 
-Forecast uncertainty is a development approximation.
+Install dependencies:
 
-Real production pricing would require stronger experimentation and validation.
+    pip install -e .
+    cd frontend
+    npm install
 
-Business constraints would need to be adapted to each retailer.
+Run tests:
 
-Project Status
+    pytest -q
 
-Component
+Run the backend:
 
-Status
+    uvicorn api.main:app --reload
 
-Synthetic data generation
+Run the frontend:
 
-Complete
+    cd frontend
+    npm run dev
 
-Feature engineering
+Before opening a pull request:
 
-Complete
+    pytest -q
 
-Demand forecasting
+and verify the frontend builds successfully.
 
-Complete
+---
 
-Model evaluation
+## Branch Naming
 
-Complete
+Use descriptive branch names:
 
-Price elasticity
+    feature/<feature-name>
+    fix/<bug-name>
+    refactor/<area>
+    docs/<documentation-change>
+    test/<test-change>
+    chore/<maintenance-task>
 
-Complete
+Examples:
 
-Promotion analysis
+    feature/price-simulation
+    feature/elasticity-dashboard
+    fix/pricing-api
+    docs/update-readme
 
-Complete
+---
 
-Scenario simulation
+## Commit Convention
 
-Complete
+Use concise, descriptive commits.
 
-Price optimization
+Examples:
 
-Complete
+    feat: add pricing scenario simulation
+    feat: add elasticity diagnostics
+    fix: correct pricing recommendation response
+    refactor: separate forecasting and pricing logic
+    test: add pricing API coverage
+    docs: update project documentation
+    chore: improve CI configuration
 
-Commercial guardrails
+---
 
-Complete
+## Repository Quality Gates
 
-Uncertainty & confidence
+Before considering a change complete:
 
-Complete
+    [ ] Tests pass
+    [ ] Python compilation succeeds
+    [ ] No secrets committed
+    [ ] Configuration is environment-driven
+    [ ] API behavior is verified
+    [ ] Frontend behavior is verified
+    [ ] README reflects current functionality
+    [ ] Synthetic data is clearly identified
+    [ ] Production claims are not overstated
 
-Explainability
+---
 
-Complete
+## Portfolio Positioning
 
-Human review signals
+METRON is part of a broader applied AI/ML portfolio.
 
-Complete
+| Project | Primary Focus |
+|---|---|
+| Veyra | Hybrid Graph-Augmented RAG / LLM Retrieval |
+| Diabetic Retinopathy Detection | Computer Vision / Medical Image Classification |
+| AEGIS | Industrial Safety Computer Vision |
+| METRON | Applied ML / Forecasting / Pricing Optimization / Decision Intelligence |
 
-Monitoring
+METRON demonstrates the ability to connect:
 
-Complete
+    Data
+      ↓
+    Feature Engineering
+      ↓
+    Machine Learning
+      ↓
+    Scenario Simulation
+      ↓
+    Optimization
+      ↓
+    Business Constraints
+      ↓
+    Decision Support
+      ↓
+    API + Production-Style Dashboard
 
-FastAPI backend
+---
 
-Complete
+## Project Status
 
-React/Vite dashboard
+**Status: Portfolio-ready applied ML prototype**
 
-Complete
+Current implementation includes:
 
-Automated tests
+- Demand forecasting
+- Price-response modeling
+- Promotion diagnostics
+- Scenario simulation
+- Revenue/profit optimization
+- Pricing guardrails
+- Confidence estimation
+- Human-review routing
+- Explainability
+- Monitoring
+- FastAPI backend
+- React dashboard
+- Docker configuration
+- Automated tests
+- CI configuration
+- Synthetic data generation
 
-Complete
+---
 
-CI
+## License
 
-Complete
+This project is released under the MIT License.
 
-Docker
+See [LICENSE](LICENSE) for details.
 
-Complete
+---
 
-Portfolio Positioning
+<div align="center">
 
-METRON demonstrates the Applied ML / Decision Intelligence side of an AI engineering portfolio.
+## Author
 
-Data
- ↓
-Features
- ↓
-Prediction
- ↓
-Price Response
- ↓
-Simulation
- ↓
-Optimization
- ↓
-Constraints
- ↓
-Recommendation
- ↓
-Explanation
- ↓
-Human Review
- ↓
-Monitoring
+**John**
 
-The project focuses on turning machine-learning predictions into usable, explainable, and constraint-aware business decisions.
+AI / ML Engineer  
+Python | Computer Vision | LLM / RAG Systems | Applied Machine Learning
 
-License
+[GitHub](https://github.com/JOHNSANJITH)
 
-See LICENSE.
+</div>
