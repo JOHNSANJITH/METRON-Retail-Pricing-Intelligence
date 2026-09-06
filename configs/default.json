@@ -1,0 +1,10 @@
+{
+  "forecast_horizon_days": 7,
+  "validation_days": 28,
+  "random_state": 42,
+  "objective": "profit",
+  "min_price_multiplier": 0.9,
+  "max_price_multiplier": 1.1,
+  "price_step": 0.1,
+  "min_margin": 0.05
+}
