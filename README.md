@@ -536,7 +536,7 @@ Then open:
     +------------------------------------------------------+
     | Language       | Python, JavaScript                  |
     | ML             | scikit-learn                        |
-    | Forecasting    | HistGradientBoostingRegressor      |
+    | Forecasting    | HistGradientBoostingRegressor       |
     | API            | FastAPI                             |
     | Frontend       | React + Vite                        |
     | Data           | Pandas / NumPy                      |
